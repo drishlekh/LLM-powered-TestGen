@@ -2,7 +2,7 @@
 
 ***
 
-# AI-Powered Quiz Performance Analyzer
+# Report Generator for LLM Based MCQ Generator
 
 This web application provides users with a dynamic quiz experience and generates a detailed, AI-powered performance report to help them identify strengths, weaknesses, and find relevant learning resources.
 
