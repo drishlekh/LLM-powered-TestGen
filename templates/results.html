@@ -1,62 +1,259 @@
-
-
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Results</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
-    <style>
-        .dark body { background-color: #111827; color: #fff; }
-        .light body { background-color: #f3f4f6; color: #1f2937; }
-        .dark .card { background-color: rgba(31, 41, 55, 0.9); }
-        .light .card { background-color: rgba(255, 255, 255, 0.95); }
-        .score-circle { width: 150px; height: 150px; border-width: 8px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Results</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      background-color: #0f172a;
+      color: #f9fafb;
+      font-family: 'Roboto', sans-serif;
+      overflow-x: hidden;
+    }
+
+    .card {
+      background-color: rgba(30, 41, 59, 0.95);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .progress-circle {
+      position: relative;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: conic-gradient(#f97316 var(--progress), #1f2937 var(--progress));
+      transition: background 0.6s ease-in-out;
+    }
+
+    .progress-inner {
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      background-color: #111827;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Crazy button with pulse & gradient */
+    .crazy-btn {
+      position: relative;
+      display: inline-block;
+      overflow: hidden;
+      color: white;
+      font-weight: bold;
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+      padding: 0.9rem 1.5rem;
+      width: 100%;
+      border-radius: 9999px;
+      border: none;
+      background: linear-gradient(90deg, #ff6a00, #ee0979, #7928ca, #00d4ff);
+      background-size: 400%;
+      animation: gradientFlow 5s ease infinite, buttonPulse 2s ease-in-out infinite;
+      box-shadow: 0 0 15px rgba(255, 107, 53, 0.4);
+      transition: all 0.4s ease-in-out;
+      cursor: pointer;
+    }
+
+    .crazy-btn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 25px rgba(255, 107, 53, 0.7);
+      filter: brightness(1.2);
+    }
+
+    @keyframes gradientFlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes buttonPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.07); }
+    }
+
+    /* Loader Overlay */
+    #ai-loader {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-family: 'Roboto', sans-serif;
+      text-align: center;
+      z-index: 50;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    #ai-loader.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .ai-text {
+      font-size: 1.8rem;
+      font-weight: 600;
+      background: linear-gradient(90deg, #ff6a00, #ee0979, #7928ca, #00d4ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-size: 300%;
+      animation: gradientFlow 3s linear infinite, floatText 3s ease-in-out infinite;
+    }
+
+    @keyframes floatText {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .ai-loader-dots {
+      margin-top: 1rem;
+      display: flex;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      background: #60a5fa;
+      border-radius: 50%;
+      animation: bounce 1.4s infinite ease-in-out;
+    }
+
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
+
+    .fade-text {
+      transition: opacity 0.4s ease-in-out;
+    }
+  </style>
 </head>
-<body class="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-    <div class="w-full max-w-md">
-        <div class="card rounded-lg p-8 shadow-lg animate__animated animate__fadeIn">
-            <h1 class="text-2xl font-bold mb-6 text-center">Test Results</h1>
-            
-            <div class="flex flex-col items-center mb-8">
-                <div class="relative score-circle rounded-full flex items-center justify-center mb-4 border-gray-700">
-                    <div class="text-center">
-                        <span class="text-4xl font-bold">{{ score }}</span>
-                        <span class="text-xl text-gray-400">/ {{ total }}</span>
-                    </div>
-                </div>
-                
-                {% set percentage = (score/total*100) if total > 0 else 0 %}
-                <div class="text-lg font-medium text-gray-300 mb-2">
-                    {% if percentage >= 80 %}Excellent! 🎉
-                    {% elif percentage >= 60 %}Good job! 👍
-                    {% elif percentage >= 40 %}Keep practicing! ✏️
-                    {% else %}Don't give up! 💪
-                    {% endif %}
-                </div>
-                <div class="text-sm text-gray-400">{{ "%.1f"|format(percentage) }}% Correct</div>
-            </div>
-            
-            <!-- MODIFICATION: Form to submit data to the report page -->
-            <form action="{{ url_for('report_page') }}" method="POST" class="space-y-4">
-                <!-- Hidden input to carry the data -->
-                <input type="hidden" name="report_data" value="{{ report_data_json | e }}">
-                
-                <!-- NEW: Generate Report Button -->
-                <button type="submit" class="block w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-md text-center transition duration-150">
-                    Generate Detailed Report
-                </button>
-            </form>
-            
-            <div class="mt-4">
-                <a href="{{ url_for('index') }}" class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md text-center transition duration-150">
-                    Take Another Test
-                </a>
-            </div>
+
+<body class="min-h-screen flex items-center justify-center p-4">
+  <div class="w-full max-w-md animate__animated animate__fadeInUp">
+    <div class="card rounded-2xl p-8 shadow-xl">
+      <h1 class="text-3xl font-bold mb-6 text-center text-orange-400">Test Results</h1>
+
+      <div class="flex flex-col items-center mb-8">
+        {% set percentage = (score/total*100) if total > 0 else 0 %}
+        <div class="progress-circle mb-6" style="--progress: {{ percentage }}%;">
+          <div class="progress-inner text-center">
+            <span class="text-4xl font-bold text-white">{{ score }}</span>
+            <span class="text-lg text-gray-400">/ {{ total }}</span>
+          </div>
         </div>
+
+        <div class="text-lg font-medium text-gray-300 mb-1">
+          {% if percentage >= 80 %} Excellent! 🎉
+          {% elif percentage >= 60 %} Good job! 👍
+          {% elif percentage >= 40 %} Keep practicing! ✏️
+          {% else %} Don't give up! 💪
+          {% endif %}
+        </div>
+        <div class="text-sm text-gray-400">{{ "%.1f"|format(percentage) }}% Correct</div>
+      </div>
+
+      <form id="reportForm" action="{{ url_for('report_page') }}" method="POST" class="space-y-4">
+        <input type="hidden" name="report_data" value="{{ report_data_json | e }}">
+        <button type="submit" class="crazy-btn">🤖 Generate Detailed Report</button>
+      </form>
+
+      <div class="mt-4">
+        <a href="{{ url_for('index') }}"
+          class="block w-full text-center bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium py-2 px-4 rounded-full text-lg shadow-md">
+          Take Another Test
+        </a>
+      </div>
     </div>
+  </div>
+
+  <!-- AI Loader Overlay -->
+  <div id="ai-loader">
+    <div id="aiText" class="ai-text fade-text">🤖 Calling our AI agent to analyze your performance...</div>
+    <div class="ai-loader-dots">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const circle = document.querySelector(".progress-circle");
+      if (circle) {
+        const percentage = parseFloat("{{ percentage }}");
+        let current = 0;
+        const animate = () => {
+          if (current <= percentage) {
+            circle.style.setProperty("--progress", current + "%");
+            current++;
+            requestAnimationFrame(animate);
+          }
+        };
+        requestAnimationFrame(animate);
+      }
+
+      const form = document.getElementById("reportForm");
+      const loader = document.getElementById("ai-loader");
+      const aiText = document.getElementById("aiText");
+
+      const messages = [
+        "🤖 Calling our AI agent to analyze your performance...",
+        "🧠 Understanding your strengths and weaknesses...",
+        "📊 Processing your responses with deep insight...",
+        "🔍 Identifying patterns and evaluating accuracy...",
+        "⚙️ Generating a smart detailed report just for you..."
+      ];
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        loader.classList.add("active");
+
+        let i = 0;
+        aiText.textContent = messages[i];
+        const interval = setInterval(() => {
+          aiText.style.opacity = 0;
+          setTimeout(() => {
+            i = (i + 1) % messages.length;
+            aiText.textContent = messages[i];
+            aiText.style.opacity = 1;
+          }, 400);
+        }, 1200);
+
+        // After delay, submit
+        setTimeout(() => {
+          clearInterval(interval);
+          form.submit();
+        }, 5000); // adjust loading duration if needed
+      });
+    });
+  </script>
 </body>
 </html>

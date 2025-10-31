@@ -1,0 +1,255 @@
+<!-- templates/welcome.html (PREMIUM VERSION WITH ROBOTO FONT & ORANGE OUTLINE BUTTON) -->
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to AI TestGen</title>
+    
+    <!-- Roboto Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --glow-x: 50%;
+            --glow-y: 50%;
+        }
+
+        body {
+            background-color: #000000;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        h1, h2, h3, p, a, button {
+            font-family: 'Roboto', sans-serif;
+        }
+
+        /* Mouse glow */
+        body::before {
+            content: '';
+            position: fixed;
+            left: var(--glow-x);
+            top: var(--glow-y);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle at center, rgba(253, 134, 53, 0.15), transparent 50%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: -2;
+            pointer-events: none;
+            transition: left 0.2s ease-out, top 0.2s ease-out;
+        }
+
+        /* Floating particles */
+        @keyframes float {
+            0% { transform: translateY(0); opacity: 0; }
+            10%, 90% { opacity: 1; }
+            100% { transform: translateY(-100vh); opacity: 0; }
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            bottom: -10px;
+            background: #ff9933;
+            border-radius: 50%;
+            animation: float linear infinite;
+        }
+
+        /* Glass card */
+        .glass-card {
+            background: rgba(17, 24, 39, 0.5);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(55, 65, 81, 0.2);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(251, 146, 60, 0.3);
+        }
+
+        /* Highlight for AI-POWERED PRACTICE */
+        .highlight-orange {
+            background: linear-gradient(180deg, rgba(255, 160, 64, 0.25) 0%, rgba(255, 160, 64, 0.15) 100%);
+            border-radius: 0.5rem;
+            padding: 0.2em 0.5em;
+        }
+
+        /* Professional outlined button */
+        .btn-outline-orange {
+            display: inline-block;
+            border: 2px solid #fb923c;
+            color: #fb923c;
+            padding: 0.5rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.25s ease;
+        }
+
+        .btn-outline-orange:hover {
+            background-color: #fb923c;
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(251, 146, 60, 0.4);
+        }
+
+        .btn-outline-orange:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 10px rgba(251, 146, 60, 0.3);
+        }
+
+        /* Premium professional button for Launch App */
+        .btn-premium {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(90deg, #ffb566 0%, #fb923c 50%, #f97316 100%);
+            color: white;
+            padding: 0.9rem 2.2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            border-radius: 9999px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 6px 20px rgba(251, 146, 60, 0.4);
+            transition: all 0.25s ease;
+            backdrop-filter: blur(6px);
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 12px 25px rgba(251, 146, 60, 0.6);
+            background: linear-gradient(90deg, #ffc37c 0%, #fb923c 60%, #ea580c 100%);
+        }
+
+        .btn-premium:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 12px rgba(251, 146, 60, 0.5);
+        }
+    </style>
+</head>
+
+<body class="text-gray-200">
+
+    <div class="particles" id="particles-container"></div>
+
+    <!-- Header -->
+    <header class="p-4 fixed top-0 left-0 right-0 z-10 bg-black/30 backdrop-filter backdrop-blur-lg border-b border-gray-800/50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-pink-500">
+                AI TestGen
+            </h1>
+            <a href="{{ url_for('auth_page') }}" class="btn-outline-orange">
+                Get Started
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 pt-32 pb-16">
+
+        <section class="text-center animate__animated animate__fadeInUp">
+            <h2 class="text-4xl md:text-6xl font-extrabold text-white leading-tight whitespace-nowrap">
+                Master Your Aptitude with <span class="highlight-orange">AI-POWERED PRACTICE</span>
+            </h2>
+
+            <p class="mt-8 max-w-2xl mx-auto text-lg text-gray-400 italic">
+                Stop using static question banks. Our platform generates unique, placement-focused quizzes on demand and provides personalized AI feedback to pinpoint your weaknesses and guide your prep.
+            </p>
+
+            <div class="mt-12 flex justify-center">
+                <a href="{{ url_for('auth_page') }}" class="btn-premium">
+                    Launch App
+                </a>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section class="mt-24 md:mt-32">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="glass-card p-8 rounded-xl text-center animate__animated animate__fadeIn" style="animation-delay: 0.2s;">
+                    <div class="flex justify-center mb-4">
+                        <svg class="w-12 h-12 text-orange-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Dynamic Question Generation</h3>
+                    <p class="text-gray-400">
+                        Never face the same test twice. Select your subjects and difficulty, and our AI generates a fresh set of questions tailored to Indian placement scenarios.
+                    </p>
+                </div>
+
+                <div class="glass-card p-8 rounded-xl text-center animate__animated animate__fadeIn" style="animation-delay: 0.4s;">
+                    <div class="flex justify-center mb-4">
+                        <svg class="w-12 h-12 text-pink-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M12 5V3m0 18v-2M4.219 4.219l-1.428-1.428M19.781 19.781l-1.428-1.428M4.219 19.781l1.428-1.428M19.781 4.219l-1.428 1.428M12 6a6 6 0 100 12 6 6 0 000-12z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Personalized AI Reports</h3>
+                    <p class="text-gray-400">
+                        Go beyond just a score. Our agent analyzes your performance, identifies weak topics, and provides links to targeted video tutorials and practice material.
+                    </p>
+                </div>
+
+                <div class="glass-card p-8 rounded-xl text-center animate__animated animate__fadeIn" style="animation-delay: 0.6s;">
+                    <div class="flex justify-center mb-4">
+                        <svg class="w-12 h-12 text-orange-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Track Your Growth</h3>
+                    <p class="text-gray-400">
+                        Create an account to save your entire quiz history. Monitor your scores and accuracy over time to see your improvement and stay motivated.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="text-center p-6 mt-16">
+        <p class="text-gray-600">&copy; 2025 AI TestGen. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('mousemove', (e) => {
+            window.requestAnimationFrame(() => {
+                document.documentElement.style.setProperty('--glow-x', `${e.clientX}px`);
+                document.documentElement.style.setProperty('--glow-y', `${e.clientY}px`);
+            });
+        });
+
+        const particlesContainer = document.getElementById('particles-container');
+        const particleCount = 30;
+
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            const size = Math.random() * 3 + 1;
+            const duration = Math.random() * 20 + 10;
+            const delay = Math.random() * -30;
+            const xPosition = Math.random() * 100;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.animationDuration = `${duration}s`;
+            particle.style.animationDelay = `${delay}s`;
+            particle.style.left = `${xPosition}%`;
+            particlesContainer.appendChild(particle);
+        }
+    </script>
+</body>
+</html>

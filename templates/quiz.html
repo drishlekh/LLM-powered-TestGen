@@ -1,200 +1,382 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
-    <meta charset="UTF-g">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Session</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <style>
-        .dark body { background-color: #111827; color: #fff; }
-        .dark .card { background-color: rgba(31, 41, 55, 0.9); }
-        .question-palette-item { transition: all 0.2s ease-in-out; }
-        .option { transition: all 0.2s ease-in-out; cursor: pointer; }
-        .option.disabled { cursor: not-allowed; opacity: 0.7; }
-        .option.correct { border-color: #10B981; background-color: rgba(16, 185, 129, 0.3); }
-        .option.incorrect { border-color: #EF4444; background-color: rgba(239, 68, 68, 0.3); }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Session | AI Quiz</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      font-family: 'Roboto', sans-serif;
+    }
+
+    body {
+      background-color: #0b0c10;
+      color: #e5e7eb;
+      margin: 0;
+      overflow-x: hidden;
+    }
+
+    /* Layout */
+    .test-container {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background-color: #111827;
+      border-right: 2px solid #1f2937;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-header {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #ff8800;
+      margin-bottom: 1.5rem;
+    }
+
+    .question-palette {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.6rem;
+      flex-grow: 1;
+    }
+
+    .question-palette-item {
+      height: 36px;
+      width: 36px;
+      border-radius: 50%;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease-in-out;
+      cursor: pointer;
+    }
+
+    .question-palette-item:hover {
+      transform: scale(1.1);
+    }
+
+    .question-palette-item.current {
+      background: #3b82f6;
+      color: #fff;
+      box-shadow: 0 0 0 2px #2563eb;
+    }
+
+    .question-palette-item.answered {
+      background: #10b981;
+      color: #fff;
+    }
+
+    .question-palette-item.default {
+      background: #374151;
+      color: #9ca3af;
+    }
+
+    .sidebar-footer {
+      margin-top: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .sidebar-footer button {
+      padding: 0.6rem 0;
+      background: #ef4444;
+      color: white;
+      font-weight: 600;
+      border-radius: 6px;
+      transition: 0.2s;
+    }
+
+    .sidebar-footer button:hover {
+      background: #dc2626;
+    }
+
+    /* Main Question Panel */
+    .question-area {
+      padding: 2rem 3rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .test-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid #1f2937;
+      padding-bottom: 0.8rem;
+    }
+
+    .test-header h2 {
+      font-weight: 600;
+      color: #f3f4f6;
+    }
+
+    .timer {
+      background: #7f1d1d;
+      color: #fff;
+      font-weight: 500;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+    }
+
+    /* Question */
+    .question-box {
+      background: #1f2937;
+      border: 2px solid #374151;
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+      min-height: 160px;
+    }
+
+    .question-topic {
+      background: #1e40af;
+      color: #dbeafe;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      padding: 0.25rem 0.7rem;
+      border-radius: 9999px;
+      margin-bottom: 1rem;
+      display: inline-block;
+      letter-spacing: 0.03em;
+    }
+
+    .question-text {
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: #f9fafb;
+      line-height: 1.6;
+    }
+
+    /* Options */
+    .option {
+      border: 2px solid #374151;
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      margin-bottom: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+    }
+
+    .option:hover {
+      background: #374151;
+    }
+
+    .option.disabled {
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    .option.correct {
+      border-color: #10b981;
+      background-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .option.incorrect {
+      border-color: #ef4444;
+      background-color: rgba(239, 68, 68, 0.3);
+    }
+
+    /* Feedback */
+    .feedback {
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      margin-top: 1.2rem;
+      font-size: 0.95rem;
+    }
+
+    /* Navigation Buttons */
+    .navigation {
+      margin-top: 2rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+    }
+
+    .btn {
+      font-weight: 600;
+      padding: 0.7rem 1.5rem;
+      border-radius: 6px;
+      transition: 0.2s ease;
+    }
+
+    .btn-next {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn-next:hover {
+      background: #1d4ed8;
+    }
+  </style>
 </head>
-<body class="min-h-screen bg-gray-900 flex items-center justify-center p-4">
 
-    <div class="w-full max-w-4xl">
-        <div class="card rounded-xl p-8 shadow-2xl">
-            <!-- Header -->
-            <div class="flex justify-between items-center mb-6">
-                <div id="question-counter" class="text-sm font-medium text-gray-400"></div>
-                {% if timed_test %}
-                <div id="timer" class="timer px-3 py-1 bg-red-800 rounded-md font-medium"></div>
-                {% endif %}
-            </div>
-            
-            <!-- Question Palette -->
-            <div class="grid grid-cols-10 gap-2 mb-6" id="question-palette">
-                <!-- Palette will be generated by JavaScript -->
-            </div>
-            
-            <!-- Question Body -->
-            <div class="mb-6 min-h-[120px]">
-                <div class="mb-3">
-                    <span id="question-topic" class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-blue-300 bg-blue-800"></span>
-                </div>
-                <h2 id="question-text" class="text-xl font-semibold"></h2>
-            </div>
-            
-            <!-- Options -->
-            <div id="options-container" class="space-y-3 mb-6"></div>
-            
-            <!-- Feedback and Solution -->
-            <div id="feedback-container" class="hidden mb-4 p-4 rounded-md">
-                <div id="feedback-result" class="font-bold text-lg mb-2"></div>
-                <div id="feedback-solution"></div>
-            </div>
-            
-            <!-- Navigation -->
-            <div class="flex justify-between items-center mt-6">
-                 <button id="finish-btn" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md">
-                    Finish Test
-                </button>
-                <button id="next-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md hidden">
-                    Next Question
-                </button>
-            </div>
-        </div>
-    </div>
+<body>
+  <div class="test-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">Test Overview</div>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // --- DATA and STATE ---
-        const questions = {{ questions | tojson | safe }};
-        const subjectMap = {{ subject_map | tojson | safe }};
-        let currentQuestionIndex = 0;
-        const userAnswers = {}; // To track answered state for UI
+      <div id="question-palette" class="question-palette"></div>
 
-        // --- DOM ELEMENTS ---
-        const questionCounter = document.getElementById('question-counter');
-        const questionPalette = document.getElementById('question-palette');
-        const questionTopic = document.getElementById('question-topic');
-        const questionText = document.getElementById('question-text');
-        const optionsContainer = document.getElementById('options-container');
-        const feedbackContainer = document.getElementById('feedback-container');
-        const feedbackResult = document.getElementById('feedback-result');
-        const feedbackSolution = document.getElementById('feedback-solution');
-        const nextBtn = document.getElementById('next-btn');
-        const finishBtn = document.getElementById('finish-btn');
-        
-        // --- TIMER ---
-        const timerElement = document.getElementById('timer');
-        let timeLeft = {{ time_left if time_left is not none else 'null' }};
-        if (timerElement && timeLeft !== null) {
-            const timerInterval = setInterval(() => {
-                timeLeft--;
-                const minutes = Math.floor(timeLeft / 60);
-                const seconds = Math.floor(timeLeft % 60);
-                timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    finishTest();
-                }
-            }, 1000);
+      <div class="sidebar-footer">
+        <button id="finish-btn">Finish Test</button>
+      </div>
+    </aside>
+
+    <!-- Main Question Section -->
+    <main class="question-area">
+      <div class="test-header">
+        <h2 id="question-counter"></h2>
+        {% if timed_test %}
+        <div id="timer" class="timer"></div>
+        {% endif %}
+      </div>
+
+      <div class="question-box">
+        <div id="question-topic" class="question-topic"></div>
+        <div id="question-text" class="question-text"></div>
+      </div>
+
+      <div id="options-container"></div>
+
+      <div id="feedback-container" class="hidden feedback"></div>
+
+      <div class="navigation">
+        <button id="next-btn" class="btn btn-next hidden">Next Question</button>
+      </div>
+    </main>
+  </div>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // --- DATA ---
+    const questions = {{ questions | tojson | safe }};
+    const subjectMap = {{ subject_map | tojson | safe }};
+    let currentQuestionIndex = 0;
+    const userAnswers = {};
+
+    // --- ELEMENTS ---
+    const questionCounter = document.getElementById('question-counter');
+    const questionPalette = document.getElementById('question-palette');
+    const questionTopic = document.getElementById('question-topic');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const feedbackContainer = document.getElementById('feedback-container');
+    const nextBtn = document.getElementById('next-btn');
+    const finishBtn = document.getElementById('finish-btn');
+    const timerElement = document.getElementById('timer');
+
+    // --- TIMER ---
+    let timeLeft = {{ time_left if time_left is not none else 'null' }};
+    if (timerElement && timeLeft !== null) {
+      const timerInterval = setInterval(() => {
+        timeLeft--;
+        const m = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+        const s = String(Math.floor(timeLeft % 60)).padStart(2, '0');
+        timerElement.textContent = `${m}:${s}`;
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          finishTest();
         }
+      }, 1000);
+    }
 
-        // --- FUNCTIONS ---
-        function renderQuestion(index) {
-            currentQuestionIndex = index;
-            const question = questions[index];
+    // --- FUNCTIONS ---
+    function renderQuestion(index) {
+      currentQuestionIndex = index;
+      const q = questions[index];
 
-            // Update text content
-            questionCounter.textContent = `Question ${index + 1} of ${questions.length}`;
-            const subjectAbbr = subjectMap[question.subject] || 'G';
-            questionTopic.textContent = `${subjectAbbr} -> ${question.chapter || 'General'}`;
-            questionText.textContent = question.question;
+      questionCounter.textContent = `Question ${index + 1} of ${questions.length}`;
+      questionTopic.textContent = `${subjectMap[q.subject] || 'G'} → ${q.chapter || 'General'}`;
+      questionText.textContent = q.question;
+      optionsContainer.innerHTML = '';
+      feedbackContainer.classList.add('hidden');
+      nextBtn.classList.add('hidden');
 
-            // Render options
-            optionsContainer.innerHTML = '';
-            for (const [letter, optionText] of Object.entries(question.options)) {
-                const optionDiv = document.createElement('div');
-                optionDiv.className = 'option p-4 border border-gray-600 rounded-md hover:bg-gray-700';
-                optionDiv.dataset.option = letter;
-                optionDiv.innerHTML = `<span class="font-bold mr-3">${letter})</span><span>${optionText}</span>`;
-                optionDiv.addEventListener('click', () => handleOptionClick(letter));
-                optionsContainer.appendChild(optionDiv);
-            }
+      for (const [key, value] of Object.entries(q.options)) {
+        const opt = document.createElement('div');
+        opt.className = 'option';
+        opt.dataset.option = key;
+        opt.innerHTML = `<span class="font-bold mr-3">${key})</span> ${value}`;
+        opt.addEventListener('click', () => handleOptionClick(key));
+        optionsContainer.appendChild(opt);
+      }
 
-            // Hide feedback and next button
-            feedbackContainer.classList.add('hidden');
-            nextBtn.classList.add('hidden');
-            
-            updatePalette();
-        }
+      updatePalette();
+    }
 
-        function handleOptionClick(selectedOption) {
-            // Prevent re-answering
-            if (userAnswers[currentQuestionIndex] !== undefined) return;
+    function handleOptionClick(selected) {
+      if (userAnswers[currentQuestionIndex] !== undefined) return;
 
-            userAnswers[currentQuestionIndex] = selectedOption;
+      userAnswers[currentQuestionIndex] = selected;
 
-            fetch("{{ url_for('check_answer') }}", {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    question_index: currentQuestionIndex,
-                    selected_option: selectedOption
-                }),
-            })
-            .then(res => res.json())
-            .then(data => {
-                feedbackResult.textContent = data.is_correct ? 'Correct!' : 'Incorrect. The correct answer is ' + data.correct_answer;
-                feedbackSolution.innerHTML = `<b>Solution:</b><br>${data.solution.replace(/\n/g, '<br>')}`;
-                feedbackContainer.className = `p-4 rounded-md ${data.is_correct ? 'bg-green-800' : 'bg-red-800'}`;
-                
-                // Show feedback and next button
-                feedbackContainer.classList.remove('hidden');
-                if (currentQuestionIndex < questions.length - 1) {
-                    nextBtn.classList.remove('hidden');
-                }
-                
-                // Style options
-                document.querySelectorAll('.option').forEach(opt => {
-                    opt.classList.add('disabled');
-                    if(opt.dataset.option === data.correct_answer) opt.classList.add('correct');
-                    else if(opt.dataset.option === selectedOption) opt.classList.add('incorrect');
-                });
-                
-                updatePalette();
-            });
-        }
-        
-        function updatePalette() {
-            questionPalette.innerHTML = '';
-            for (let i = 0; i < questions.length; i++) {
-                const item = document.createElement('div');
-                item.dataset.index = i;
-                item.textContent = i + 1;
-                
-                let baseStyle = 'question-palette-item rounded-full text-sm font-medium flex items-center justify-center cursor-pointer';
-                let colorStyle = 'bg-gray-700 text-gray-300'; // Default: Unvisited
+      fetch("{{ url_for('check_answer') }}", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question_index: currentQuestionIndex,
+          selected_option: selected
+        }),
+      })
+      .then(res => res.json())
+      .then(data => {
+        feedbackContainer.classList.remove('hidden');
+        feedbackContainer.textContent = data.is_correct
+          ? '✅ Correct!'
+          : `❌ Incorrect. Correct Answer: ${data.correct_answer}\nSolution: ${data.solution}`;
+        feedbackContainer.style.background = data.is_correct ? '#065f46' : '#7f1d1d';
 
-                if (userAnswers[i] !== undefined) {
-                    colorStyle = 'bg-green-700 text-green-200'; // Answered
-                }
-                if (i === currentQuestionIndex) {
-                    colorStyle = 'bg-blue-700 text-white ring-2 ring-blue-300'; // Current
-                }
+        document.querySelectorAll('.option').forEach(opt => {
+          opt.classList.add('disabled');
+          if (opt.dataset.option === data.correct_answer) opt.classList.add('correct');
+          else if (opt.dataset.option === selected) opt.classList.add('incorrect');
+        });
 
-                item.className = `${baseStyle} ${colorStyle}`;
-                item.addEventListener('click', () => renderQuestion(i));
-                questionPalette.appendChild(item);
-            }
-        }
+        if (currentQuestionIndex < questions.length - 1) nextBtn.classList.remove('hidden');
+        updatePalette();
+      });
+    }
 
-        function finishTest() {
-            window.location.href = "{{ url_for('results') }}";
-        }
+    function updatePalette() {
+      questionPalette.innerHTML = '';
+      for (let i = 0; i < questions.length; i++) {
+        const div = document.createElement('div');
+        div.textContent = i + 1;
+        div.classList.add('question-palette-item');
 
-        // --- INITIALIZATION ---
-        nextBtn.addEventListener('click', () => renderQuestion(currentQuestionIndex + 1));
-        finishBtn.addEventListener('click', finishTest);
-        renderQuestion(0);
-    });
-    </script>
+        if (i === currentQuestionIndex) div.classList.add('current');
+        else if (userAnswers[i] !== undefined) div.classList.add('answered');
+        else div.classList.add('default');
+
+        div.addEventListener('click', () => renderQuestion(i));
+        questionPalette.appendChild(div);
+      }
+    }
+
+    function finishTest() {
+      window.location.href = "{{ url_for('results') }}";
+    }
+
+    // --- INIT ---
+    nextBtn.addEventListener('click', () => renderQuestion(currentQuestionIndex + 1));
+    finishBtn.addEventListener('click', finishTest);
+    renderQuestion(0);
+  });
+  </script>
 </body>
 </html>

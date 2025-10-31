@@ -1,331 +1,302 @@
+<!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Question Generation App</title>
+    <title>Create a New Quiz</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
     <style>
-        #difficulty, #difficulty option {
-            color: black !important;
-            background-color: white !important;
+        * {
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: #0e0e0e;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .page-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: 100vh;
+        }
+
+        /* Left side hero section */
+        .hero-section {
+            background: linear-gradient(145deg, #111 20%, #1a1a1a 80%);
+            border-right: 3px solid #ff8800;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4rem;
+        }
+
+        .hero-title {
+            font-size: 2.8rem;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+
+        .hero-title span {
+            color: #ff8800;
+        }
+
+        .hero-subtitle {
+            color: #ccc;
+            font-size: 1.1rem;
+            max-width: 80%;
+        }
+
+        /* Right side form section */
+        .form-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0e0e0e;
+            padding: 3rem;
+        }
+
+        .form-card {
+            width: 100%;
+            max-width: 550px;
+            background: #fff;
+            color: #111;
+            padding: 3rem;
+            border: 3px solid #111;
+            box-shadow: 6px 6px 0px #ff8800;
+            border-radius: 0;
+        }
+
+        .form-card h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+            color: #111;
+        }
+
+        label {
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            color: #111;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #111;
+            background: #f8f8f8;
+            color: #111;
+            font-weight: 500;
+            border-radius: 0;
+            transition: 0.2s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: #ff8800;
+            outline: none;
+        }
+
+        .subject-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.8rem;
+        }
+
+        .subject-label {
+            display: flex;
+            align-items: center;
+            border: 2px solid #111;
+            background: #f5f5f5;
+            padding: 0.6rem 0.8rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .subject-label:hover {
+            background: #ff8800;
+            color: #fff;
+            border-color: #ff8800;
+        }
+
+        .subject-label input {
+            margin-right: 0.6rem;
+            accent-color: #ff8800;
         }
 
         .toggle-switch {
             position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
+            width: 50px;
+            height: 26px;
         }
+
         .toggle-switch input {
             opacity: 0;
             width: 0;
             height: 0;
         }
+
         .toggle-slider {
             position: absolute;
             cursor: pointer;
+            background-color: #ccc;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #4B5563;
-            transition: .4s;
-            border-radius: 34px;
+            transition: 0.4s;
+            border: 2px solid #111;
         }
+
         .toggle-slider:before {
             position: absolute;
             content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 2px;
+            background-color: #111;
+            transition: 0.4s;
         }
+
         input:checked + .toggle-slider {
-            background-color: #68D391;
+            background-color: #ff8800;
         }
+
         input:checked + .toggle-slider:before {
-            transform: translateX(26px);
+            transform: translateX(24px);
+            background: #fff;
         }
-        .info-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background-color: #3B82F6;
-            color: white;
-            font-size: 12px;
-            font-weight: bold;
-            margin-left: 8px;
-            cursor: pointer;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 50;
-            left: 0;
-            top: 0;
+
+        .btn {
+            display: block;
             width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-        }
-        .modal-content {
-            background-color: #1F2937;
-            margin: 15% auto;
-            padding: 20px;
-            border-radius: 8px;
-            width: 80%;
-            max-width: 400px;
-            color: white;
-        }
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .close:hover {
-            color: white;
-        }
-        .theme-toggle {
-            position: fixed;
-            top: 1.5rem; /* 24px */
-            right: 1.5rem;
-            z-index: 50;
-        }
-        .card {
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        /* Metallic glass background effect */
-        .gradient-bg {
-            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .gradient-bg::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(
-                45deg,
-                rgba(255, 255, 255, 0.1) 0%,
-                rgba(255, 255, 255, 0.05) 50%,
-                rgba(255, 255, 255, 0.1) 100%
-            );
-            backdrop-filter: blur(10px);
-            z-index: 0;
-        }
-
-        /* Card styles with metallic effect */
-        .card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 
-                0 8px 32px 0 rgba(31, 38, 135, 0.37),
-                inset 0 0 32px 0 rgba(31, 38, 135, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        /* Dark mode styles */
-        .dark body {
-            background-color: #111827;
-        }
-
-        .dark .card {
-            background: rgba(31, 41, 55, 0.8);
+            background: #111;
             color: #fff;
+            font-weight: 600;
+            padding: 0.9rem;
+            border: 2px solid #111;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
         }
 
-        .dark label,
-        .dark span,
-        .dark select,
-        .dark input {
-            color: #fff !important;
-        }
-        select, select option {
-            color: black !important;
-            background-color: white !important;
+        .btn:hover {
+            background: #ff8800;
+            color: #111;
+            transform: translate(-3px, -3px);
+            box-shadow: 6px 6px 0px #111;
         }
 
-        /* Light mode styles */
-        .light body {
-            background-color: #f3f4f6;
+        /* Top-right status */
+        .status-bar {
+            position: absolute;
+            top: 1.5rem;
+            right: 2rem;
+            font-size: 0.9rem;
+            color: #ccc;
         }
 
-        .light .card {
-            background: rgba(255, 255, 255, 0.85);
+        .status-bar a {
+            color: #ff8800;
+            font-weight: 500;
         }
 
-        .light label,
-        .light span,
-        .light select,
-        .light input,
-        .light option {
-            color: #1f2937 !important;
-        }
-
-        /* Form elements */
-        .modern-input {
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: inherit !important;
-        }
-
-        .light .modern-input {
-            background-color: rgba(255, 255, 255, 0.9);
-            border-color: rgba(0, 0, 0, 0.1);
-        }
-
-        /* Checkbox container */
-        .checkbox-container {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .light .checkbox-container {
-            background: rgba(255, 255, 255, 0.9);
-            border-color: rgba(0, 0, 0, 0.1);
-        }
-
-        /* Theme toggle button */
-        .theme-toggle {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .light .theme-toggle {
-            background: rgba(255, 255, 255, 0.9);
-            border-color: rgba(0, 0, 0, 0.1);
+        @media (max-width: 900px) {
+            .page-wrapper {
+                grid-template-columns: 1fr;
+            }
+            .hero-section {
+                display: none;
+            }
+            .form-section {
+                padding: 2rem;
+            }
         }
     </style>
 </head>
-<body class="min-h-screen gradient-bg flex items-center justify-center p-4">
-    <!-- Theme Toggle Button -->
-    <button id="themeToggle" class="theme-toggle px-4 py-2 rounded-full shadow-lg transition-all duration-300 ease-in-out">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-        </svg>
-    </button>
 
-    <div class="w-full max-w-2xl animate__animated animate__fadeIn">
-        <div class="card rounded-xl p-8 shadow-2xl">
-            <h1 class="text-3xl font-bold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">
-                Dynamic Question Generation App
-            </h1>
-            
-            <form method="POST" class="space-y-6">
-                <!-- Subjects -->
-                <div class="animate__animated animate__fadeInUp">
-                    <label class="block text-lg font-medium mb-3">Subjects</label>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {% for subject in subjects %}
-                        <label class="flex items-center space-x-3 p-3 rounded-lg border transition-all duration-300 hover:border-blue-500">
-                            <input type="checkbox" name="subjects" value="{{ subject }}" 
-                                   class="modern-checkbox" checked>
-                            <span>{{ subject }}</span>
+<body>
+    <div class="page-wrapper">
+
+        <!-- Left side -->
+        <section class="hero-section">
+            <h1 class="hero-title">Start Your <span>AI-Powered</span> Test</h1>
+            <p class="hero-subtitle">
+                Choose your subjects, set the difficulty, and begin your test with real-time AI-generated questions. 
+                Built for smart learners who value precision and style.
+            </p>
+        </section>
+
+        <!-- Right side -->
+        <section class="form-section">
+            <div class="status-bar">
+    {% if g.user %}
+        Logged in as <span class="font-medium" style="color: #ff8800;">{{ g.user.email }}</span> |
+        <a href="{{ url_for('user_history') }}">View History</a> |
+        <a href="{{ url_for('logout') }}">Logout</a>
+    {% elif g.guest_id %}
+        Guest Mode |
+        <a href="{{ url_for('logout') }}">End Session</a>
+    {% endif %}
+</div>
+
+            <div class="form-card">
+                <h1>Create a New Quiz</h1>
+                <form method="POST" class="space-y-6">
+
+                    <!-- Subjects -->
+                    <div>
+                        <label>Subjects</label>
+                        <div class="subject-grid mt-2">
+                            {% for subject in subjects %}
+                            <label class="subject-label">
+                                <input type="checkbox" name="subjects" value="{{ subject }}" checked>
+                                {{ subject }}
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Difficulty -->
+                    <div>
+                        <label>Difficulty</label>
+                        <select name="difficulty" class="mt-2">
+                            <option value="Easy">Easy</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="Hard">Hard</option>
+                        </select>
+                    </div>
+
+                    <!-- Number of Questions -->
+                    <div>
+                        <label>Number of Questions</label>
+                        <input type="number" name="num_questions" min="1" max="30" value="5" required class="mt-2">
+                    </div>
+
+                    <!-- Timed Test -->
+                    <div class="flex items-center justify-between mt-4">
+                        <span class="font-medium uppercase">Timed Test</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="timed_test">
+                            <span class="toggle-slider"></span>
                         </label>
-                        {% endfor %}
                     </div>
-                </div>
-                
-                <!-- Difficulty -->
-                <div class="animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
-                    <label for="difficulty" class="block text-lg font-medium mb-3">Difficulty</label>
-                    <select id="difficulty" name="difficulty" 
-                            class="w-full px-4 py-3 rounded-lg border modern-input" 
-                            style="color: black !important; background-color: white !important;">
-                        <option value="Easy">Easy</option>
-                        <option value="Medium" selected>Medium</option>
-                        <option value="Hard">Hard</option>
-                    </select>
-                </div>
-                
-                <!-- Number of Questions -->
-                <div class="animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
-                    <label for="num_questions" class="block text-lg font-medium mb-3">Number of Questions</label>
-                    <input type="number" id="num_questions" name="num_questions" min="1" max="30" 
-                           class="w-full px-4 py-3 rounded-lg border modern-input"
-                           value="5" required>
-                </div>
-                
-                <!-- Timed Test Toggle -->
-                <div class="flex items-center justify-between animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
-                    <div class="flex items-center space-x-2">
-                        <span class="text-lg font-medium">Timed Test</span>
-                        <div class="info-icon cursor-pointer" id="infoButton">ⓘ</div>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" name="timed_test">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                
-                <!-- Submit Button -->
-                <button type="submit" 
-                        class="w-full py-3 px-6 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold text-lg transition-all duration-300 hover:opacity-90 hover:scale-105 animate__animated animate__fadeInUp"
-                        style="animation-delay: 0.4s;">
-                    Start Test
-                </button>
-            </form>
-        </div>
+
+                    <button type="submit" class="btn">Start Test</button>
+                </form>
+            </div>
+        </section>
     </div>
-
-    <script>
-        // Theme Toggle Logic
-        const html = document.documentElement;
-        const themeToggle = document.getElementById('themeToggle');
-        
-        // Check for saved theme preference
-        const savedTheme = localStorage.getItem('theme') || 'dark'; // Set dark as default
-        html.classList.add(savedTheme);
-        updateThemeButton(savedTheme);
-        
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = html.classList.contains('dark') ? 'light' : 'dark';
-            html.classList.remove('light', 'dark');
-            html.classList.add(currentTheme);
-            localStorage.setItem('theme', currentTheme);
-            updateThemeButton(currentTheme);
-        });
-        
-        function updateThemeButton(theme) {
-            themeToggle.innerHTML = theme === 'dark' 
-                ? '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707"></path></svg>'
-                : '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>';
-            
-            themeToggle.className = `theme-toggle px-4 py-2 rounded-full shadow-lg transition-all duration-300 ease-in-out ${
-                theme === 'dark' ? 'bg-gray-800 text-yellow-500' : 'bg-white text-gray-800'
-            }`;
-        }
-        
-        // Existing modal logic
-        const modal = document.getElementById("infoModal");
-        const infoBtn = document.getElementById("infoButton");
-        const span = document.getElementsByClassName("close")[0];
-
-        infoBtn.onclick = () => modal.style.display = "block";
-        span.onclick = () => modal.style.display = "none";
-        window.onclick = (event) => {
-            if (event.target == modal) modal.style.display = "none";
-        }
-    </script>
 </body>
 </html>

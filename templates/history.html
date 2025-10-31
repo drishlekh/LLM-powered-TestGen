@@ -1,0 +1,189 @@
+<!-- templates/history.html -->
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Quiz History</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chart.js library for the graph -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        * {
+            font-family: 'Roboto', sans-serif;
+        }
+        body {
+            background-color: #0e0e0e;
+            color: #fff;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .header h1 span {
+            color: #ff8800;
+        }
+        .grid-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 2rem;
+        }
+        .history-list {
+            background: #1a1a1a;
+            padding: 1.5rem;
+            border-left: 3px solid #ff8800;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        .history-item {
+            padding: 1rem;
+            border-bottom: 1px solid #333;
+        }
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        .item-date {
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-bottom: 0.5rem;
+        }
+        .item-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+        }
+        .item-score {
+            font-size: 1.2rem;
+        }
+        .item-accuracy {
+            font-size: 1rem;
+            color: #ff8800;
+        }
+        .graph-container {
+            padding: 2rem;
+            background: #1a1a1a;
+        }
+        .back-button {
+            display: inline-block;
+            margin-top: 2rem;
+            padding: 0.8rem 1.5rem;
+            background: #111;
+            color: #fff;
+            font-weight: 600;
+            text-decoration: none;
+            border: 2px solid #111;
+            transition: all 0.3s ease;
+        }
+        .back-button:hover {
+            background: #ff8800;
+            color: #111;
+        }
+        @media (max-width: 900px) {
+            .grid-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>Your Performance <span>History</span></h1>
+        </div>
+
+        <div class="grid-wrapper">
+            <!-- Left Side: List of Scores -->
+            <div class="history-list">
+                {% if results %}
+                    {% for result in results %}
+                    <div class="history-item">
+                        <p class="item-date">{{ result.timestamp }}</p>
+                        <div class="item-stats">
+                            <span class="item-score">Score: {{ result.score }} / {{ result.total_questions }}</span>
+                            <span class="item-accuracy">{{ result.accuracy }}%</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-center text-gray-400 p-4">You have no quiz history yet.</p>
+                {% endif %}
+            </div>
+
+            <!-- Right Side: Graph -->
+            <div class="graph-container">
+                <canvas id="accuracyChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="text-center">
+            <a href="{{ url_for('index') }}" class="back-button">Back to Quiz Setup</a>
+        </div>
+    </div>
+
+    <script>
+        // This line safely passes the data from Flask (Python) to JavaScript
+        const resultsData = {{ results_json | safe }};
+
+        // Prepare the data for the chart
+        const labels = resultsData.map(r => new Date(r.timestamp_raw).toLocaleDateString());
+        const accuracies = resultsData.map(r => r.accuracy);
+
+        const ctx = document.getElementById('accuracyChart').getContext('2d');
+        const accuracyChart = new Chart(ctx, {
+            type: 'line', // Line chart is best for showing trends
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Accuracy (%)',
+                    data: accuracies,
+                    backgroundColor: 'rgba(255, 136, 0, 0.2)',
+                    borderColor: '#ff8800',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#ff8800',
+                    pointHoverRadius: 7,
+                    tension: 0.3 // Makes the line slightly curved
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100, // Accuracy is always out of 100
+                        ticks: { color: '#ccc' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    },
+                    x: {
+                        ticks: { color: '#ccc' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#ccc',
+                            font: { size: 14 }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>

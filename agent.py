@@ -24,7 +24,7 @@ class AgentState(TypedDict):
     report_text: str
 
 # --- 3. Define Graph Nodes ---
-llm = ChatGroq(model="llama3-8b-8192", temperature=0.1) 
+llm = ChatGroq(model="llama-3.1-8b-instant", temperature=0.1) 
 llm_with_tools = llm.bind_tools(tools)
 
 def planner_node(state: AgentState):
@@ -37,11 +37,15 @@ You are an expert academic advisor. Your first job is to analyze a student's tes
 Analyze the 'topic_breakdown'. Identify all topics where 'incorrect_count' is greater than 0. These are the student's weak topics.
 
 For EACH weak topic you identify, you MUST use your web search tool (`tavily_search`):
-1.  **To find a video tutorial:** Frame your search query like this: `site:youtube.com "Time & Work" tutorial for placements`
+1.  **To find a video tutorial:** Compulsorily frame your search query like this: `site:youtube.com "Time & Work" tutorial for placements.`
 2.  **To find practice material:** Frame your search query like this: `free "Time & Work" practice questions GeeksforGeeks OR IndiaBIX`
 
 After deciding on the tool calls, also write a preliminary analysis of the student's performance.
 """
+
+
+    
+    
     messages = [("user", prompt)]
     response = llm_with_tools.invoke(messages)
     return {"messages": [response]}
@@ -78,7 +82,7 @@ Write a short paragraph with actionable advice based on the analysis.
 For each weak topic, create a sub-heading. Then, find the corresponding `ToolMessage` in the history and construct the Markdown links using the real data you found.
 
 ### Topic: [Name of Weak Topic 1]
-*   **Video Tutorial:** [Use the 'content' from the tool result](Use the 'url' from the tool result)
+*   **Video Tutorial:** [Use the 'content' from the tool result](Use the 'url' from the tool result and the show the link too in clickable format)
 *   **Practice Material:** [Use the 'content' from the tool result](Use the 'url' from the tool result)
 
 Generate only the final report text in Markdown. Do not add any extra text or commentary.

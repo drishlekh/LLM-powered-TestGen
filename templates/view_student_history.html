@@ -1,0 +1,118 @@
+<!-- templates/view_student_history.html (FINAL, FIXED VERSION) -->
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale-1.0" />
+    <title>Student Quiz History</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <style>
+        body { background-color: #111827; color: #fff; font-family: 'Roboto', sans-serif; }
+        .card { background-color: rgba(31, 41, 55, 0.9); transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1); }
+        .history-list-container { max-height: 80vh; overflow-y: auto; }
+        #reportModal { transition: opacity 0.3s ease; }
+        #reportModalContent { transition: transform 0.3s ease; }
+        .prose { color: #d1d5db; }
+        .prose h1, .prose h2, .prose h3 { color: white; border-bottom: 1px solid #4b5563; padding-bottom: 0.3em; }
+        .prose a { color: #93c5fd; text-decoration: underline; }
+        .prose ul { list-style-type: disc; padding-left: 1.5em; }
+        .prose li { margin-bottom: 0.5em; }
+        .prose strong { color: #f9fafb; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="flex flex-col lg:flex-row gap-8 max-w-7xl mx-auto">
+        <!-- LEFT SIDE -->
+        <div class="w-full lg:w-1/2 flex flex-col">
+            <header class="mb-8 text-left">
+                <h1 class="text-4xl font-bold text-purple-400">Quiz History for</h1>
+                <p class="text-2xl text-blue-300 mt-2">{{ student_email }}</p>
+            </header>
+            <div class="history-list-container space-y-4 pr-4">
+                {% if results %}
+                    {% for result in results %}
+                    <div class="card rounded-lg p-6 shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center">
+                        <div class="mb-4 md:mb-0">
+                            <p class="text-sm text-gray-400">{{ result.timestamp }}</p>
+                            <p class="text-2xl font-bold">Score: <span class="text-green-400">{{ result.score }}</span> / {{ result.total_questions }}</p>
+                            <p class="text-lg font-semibold">Accuracy: <span class="text-blue-400">{{ result.accuracy }}%</span></p>
+                        </div>
+                        <div>
+                            <button onclick="openReportModal('{{ student_id }}', '{{ result.id }}')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition-transform transform hover:scale-105">
+                                View AI Report
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="card rounded-lg p-8 text-center">
+                        <p class="text-xl text-gray-400">This student has not completed any quizzes yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="text-center mt-auto pt-8">
+                <a href="{{ url_for('teacher_dashboard') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-md">
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+        <!-- RIGHT SIDE -->
+        <div class="w-full lg:w-1/2 flex flex-col justify-center items-center lg:sticky top-8 self-start">
+            <h2 class="text-3xl font-bold text-orange-400 mb-6">Accuracy Over Time</h2>
+            <div class="bg-gray-800 p-4 rounded-lg shadow-lg w-full h-96">
+                <canvas id="accuracyChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div id="reportModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 hidden pointer-events-none opacity-0">
+        <div id="reportModalContent" class="bg-gray-800 rounded-lg shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto transform scale-95">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-3">
+                    <h2 class="text-2xl font-bold text-purple-400">AI Performance Report</h2>
+                    <button onclick="closeReportModal()" class="text-gray-400 hover:text-white">&times;</button>
+                </div>
+                <div id="report-body" class="prose prose-invert max-w-none"><p>Loading report...</p></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Modal functions remain the same
+        const modal = document.getElementById("reportModal"), modalContent = document.getElementById("reportModalContent"), reportBody = document.getElementById("report-body");
+        function openReportModal(studentId, resultId){reportBody.innerHTML="<p>Loading report...</p>",modal.classList.remove("hidden","pointer-events-none","opacity-0"),modalContent.classList.remove("scale-95"),fetch(`/get_report/${studentId}/${resultId}`).then(e=>e.json()).then(e=>{e.html?reportBody.innerHTML=e.html:reportBody.innerHTML=`<p class="text-red-400">${e.error||"Could not load the report."}</p>`}).catch(e=>{console.error("Error fetching report:",e),reportBody.innerHTML='<p class="text-red-400">An error occurred while fetching the report.</p>'})}function closeReportModal(){modal.classList.add("opacity-0","pointer-events-none"),modalContent.classList.add("scale-95"),setTimeout(()=>{modal.classList.add("hidden")},300)}modal.addEventListener("click",function(e){e.target===modal&&closeReportModal()});
+        
+        // --- FINAL CORRECTED Chart.js Setup ---
+        const resultsData = {{ results_json | safe }};
+        
+        // Use 'timestamp_raw' which is the ISO format string that JS understands
+        const labels = resultsData.map(r => {
+            // Check if timestamp_raw exists before creating a date
+            return r.timestamp_raw ? new Date(r.timestamp_raw).toLocaleDateString() : "Unknown Date";
+        });
+        const data = resultsData.map(r => r.accuracy);
+
+        const ctx = document.getElementById("accuracyChart").getContext("2d");
+        new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Accuracy (%)", data: data, borderColor: "#f97316", backgroundColor: "rgba(249,115,22,0.2)",
+                    borderWidth: 2, fill: true, tension: 0.3, pointRadius: 5, pointBackgroundColor: "#fb923c",
+                }],
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, max: 100, ticks: { color: "#e5e7eb" }, grid: { color: "rgba(255,255,255,0.1)" }, },
+                    x: { ticks: { color: "#e5e7eb" }, grid: { color: "rgba(255,255,255,0.1)" }, },
+                },
+                plugins: { legend: { labels: { color: "#f3f4f6" } }, },
+            },
+        });
+    </script>
+</body>
+</html>
