@@ -41,53 +41,89 @@ def load_logged_in_user():
         except auth.UserNotFoundError:
             session.clear() # User not found in Firebase, clear the session
 
-
-# NEW version - replace the old @app.route('/') with this
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    # This is the POST request part for starting a quiz
     if request.method == 'POST':
-        # This logic only runs when the quiz setup form is submitted
-        # Ensure the user is either a guest or logged in before starting
         if not g.user and not g.guest_id:
-            return redirect(url_for('login')) # Should not happen, but a good safeguard
+            return redirect(url_for('auth_page'))
 
-        selected_subjects = request.form.getlist('subjects')
+        quiz_type = request.form.get('quiz_type')
         difficulty = request.form.get('difficulty', 'Medium')
-        num_questions = min(int(request.form.get('num_questions', 5)), 30)
-        timed_test = request.form.get('timed_test') == 'on'
-        
-        questions = []
-        if selected_subjects:
-            questions_per_subject = num_questions // len(selected_subjects)
-            remaining_questions = num_questions % len(selected_subjects)
+
+        if quiz_type == 'aptitude':
+            selected_subjects = request.form.getlist('subjects')
+            num_questions = min(int(request.form.get('num_questions', 5)), 30)
             
-            for i, subject in enumerate(selected_subjects):
-                q_count = questions_per_subject + (1 if i < remaining_questions else 0)
-                if q_count > 0:
-                    subject_questions = generate_questions(subject, difficulty, q_count)
-                    for q in subject_questions:
-                        q['subject'] = subject
-                        q.setdefault('chapter', 'General')
-                    questions.extend(subject_questions)
-        
-        random.shuffle(questions)
-        
-        session['questions'] = questions
-        session['score'] = 0
-        session['start_time'] = time.time()
-        session['timed_test'] = timed_test
-        session['user_answers'] = {}
-        
-        return redirect(url_for('quiz'))
+            questions = []
+            if selected_subjects:
+                # ... (the rest of your existing aptitude generation logic is fine here) ...
+                questions_per_subject = num_questions // len(selected_subjects)
+                remaining_questions = num_questions % len(selected_subjects)
+                for i, subject in enumerate(selected_subjects):
+                    q_count = questions_per_subject + (1 if i < remaining_questions else 0)
+                    if q_count > 0:
+                        subject_questions = generate_questions(subject, difficulty, q_count)
+                        for q in subject_questions:
+                            q['subject'] = subject
+                            q.setdefault('chapter', 'General')
+                        questions.extend(subject_questions)
+            random.shuffle(questions)
+            
+            session['questions'] = questions
+            session['user_answers'] = {}
+            # Clear any leftover programming questions
+            session.pop('programming_questions', None)
+            return redirect(url_for('quiz'))
+
+        elif quiz_type == 'programming':
+            programming_topics = request.form.getlist('programming_topics')
+            num_dsa = int(request.form.get('num_dsa_questions', 0))
+            num_sql = int(request.form.get('num_sql_questions', 0))
+            
+            programming_questions = []
+            
+            # Generate DSA questions if the topic was selected and num > 0
+            if 'DSA' in programming_topics and num_dsa > 0:
+                for _ in range(num_dsa):
+                    question = generate_programming_question('DSA', difficulty)
+                    programming_questions.append(question)
+            
+            # Generate SQL questions if the topic was selected and num > 0
+            if 'SQL' in programming_topics and num_sql > 0:
+                for _ in range(num_sql):
+                    question = generate_programming_question('SQL', difficulty)
+                    programming_questions.append(question)
+            
+            if not programming_questions:
+                # If user selected programming but didn't check any topics, or set numbers to 0
+                # It's better to redirect them back to the start page.
+                return redirect(url_for('index'))
+
+            session['programming_questions'] = programming_questions
+            # Clear any leftover aptitude questions
+            session.pop('questions', None) 
+            return redirect(url_for('programming_quiz'))
     
-    # This is the GET request part for showing a page
-    # If user is logged in or is a guest, show the quiz setup page (index.html)
+    # GET request logic remains the same
     if g.user or g.guest_id:
         return render_template('index.html', subjects=SUBJECTS)
-    
-    # Otherwise, if no one is logged in, show the new welcome page
     return render_template('welcome.html')
+
+
+# REPLACE the old /programming_quiz placeholder with this CORRECT version
+@app.route('/programming_quiz')
+def programming_quiz():
+    # Check if questions have been generated and stored, otherwise redirect.
+    if 'programming_questions' not in session:
+        return redirect(url_for('index'))
+    
+    # Retrieve the questions from the session.
+    questions = session.get('programming_questions', [])
+
+    # This is the correct line. It renders the interactive HTML page.
+    return render_template('programming_quiz.html', 
+                           questions=questions,
+                           questions_json=json.dumps(questions))
 
 @app.route('/quiz')
 def quiz():
@@ -289,6 +325,78 @@ def generate_questions(subject, difficulty, num_questions):
     
     except Exception as e:
         return get_default_questions(subject, num_questions)
+
+
+# ADD THIS NEW FUNCTION right after the generate_questions function
+def generate_programming_question(topic, difficulty):
+    language_map = {
+        "DSA": "a Data Structures and Algorithms (DSA)",
+        "SQL": "an SQL"
+    }
+    topic_instruction = language_map.get(topic, "a generic programming")
+
+    prompt = f"""
+    Generate one {difficulty.lower()} difficulty {topic_instruction} problem suitable for a technical interview at a service-based company like TCS or Infosys.
+
+    The response MUST be a single JSON object with the following exact keys:
+    - "topic": String (Either "DSA" or "SQL").
+    - "title": String (A short, descriptive title for the problem, e.g., "Find the First Non-Repeating Character").
+    - "problem_statement": String (A detailed description of the problem. Use Markdown for formatting if needed).
+    - "examples": An array of JSON objects. Each object must have "input" and "output" as keys with string values. Provide at least two examples.
+    - "constraints": An array of strings listing any constraints (e.g., "1 <= N <= 10^5").
+
+    Example for a DSA question:
+    {{
+        "topic": "DSA",
+        "title": "Two Sum",
+        "problem_statement": "Given an array of integers `nums` and an integer `target`, return indices of the two numbers such that they add up to `target`.",
+        "examples": [
+            {{ "input": "nums = [2, 7, 11, 15], target = 9", "output": "[0, 1]" }},
+            {{ "input": "nums = [3, 2, 4], target = 6", "output": "[1, 2]" }}
+        ],
+        "constraints": [
+            "2 <= nums.length <= 10^4",
+            "-10^9 <= nums[i] <= 10^9",
+            "Only one valid answer exists."
+        ]
+    }}
+    
+    Example for an SQL question:
+    {{
+        "topic": "SQL",
+        "title": "Second Highest Salary",
+        "problem_statement": "Write a SQL query to fetch the second highest salary from the `Employee` table. If there is no second highest salary, the query should return `null`. The table has two columns: `id` and `salary`.",
+        "examples": [
+            {{ "input": "Table: [[1, 100], [2, 200], [3, 300]]", "output": "200" }},
+            {{ "input": "Table: [[1, 100]]", "output": "null" }}
+        ],
+        "constraints": [
+            "The salary column contains integer values."
+        ]
+    }}
+
+    Return ONLY the JSON object. Do not include any other text, explanations, or markdown formatting around the JSON.
+    """
+    try:
+        chat_completion = client.chat.completions.create(
+            messages=[{"role": "user", "content": prompt}],
+            model="llama-3.1-8b-instant",
+            response_format={"type": "json_object"},
+            temperature=0.8 # Slightly higher for more creative problems
+        )
+        response = chat_completion.choices[0].message.content
+        # The model should return a single JSON object, so we load it directly
+        return json.loads(response)
+    
+    except Exception as e:
+        print(f"Error generating programming question: {e}")
+        # Return a default error question if the API fails
+        return {
+            "topic": topic, "title": "Error Generating Question",
+            "problem_statement": "There was an error generating the question from the AI. Please try again.",
+            "examples": [], "constraints": []
+        }
+
 
 def get_default_questions(subject, num_questions):
     defaults = {
@@ -555,6 +663,84 @@ def get_report(student_id, result_id):
     except Exception as e:
         print(f"Error getting report: {e}")
         return jsonify({"error": "An internal error occurred."}), 500    
+
+
+# ADD THIS FINAL ROUTE FOR CODE EVALUATION
+@app.route('/evaluate_code', methods=['POST'])
+def evaluate_code():
+    data = request.get_json()
+    question = data.get('question')
+    user_code = data.get('user_code')
+    language = data.get('language')
+
+    if not all([question, user_code, language]):
+        return jsonify({"error": "Missing data for evaluation."}), 400
+
+    prompt = f"""
+    Act as an expert programming interview evaluator for a top service-based company.
+    Your task is to evaluate a user's code submission for a given problem.
+    Provide your feedback in Markdown format.
+
+    **The Problem:**
+    - Title: {question['title']}
+    - Statement: {question['problem_statement']}
+
+    **The User's Submission:**
+    - Language: {language}
+    - Code:
+    ```
+    {user_code}
+    ```
+
+    **Your Evaluation:**
+    Provide a comprehensive evaluation with the following structure:
+
+    ### 1. Correctness & Logic
+    - Does the code solve the problem correctly?
+    - Does it pass the example cases?
+    - Are there any logical errors or edge cases the user missed?
+
+    ### 2. Efficiency
+    - Analyze the time and space complexity of the user's solution.
+    - Is it an optimal solution? If not, what would be a more efficient approach?
+
+    ### 3. Code Style & Readability
+    - Is the code clean, well-formatted, and easy to understand?
+    - Are variable names meaningful?
+
+    ### 4. Optimal Solution
+    - After providing the feedback above, present a correct and optimal solution in {language}.
+    - Briefly explain why this solution is better.
+
+    Structure your entire response in clear, helpful Markdown.
+    """
+
+    try:
+        chat_completion = client.chat.completions.create(
+            messages=[{"role": "user", "content": prompt}],
+            model="llama-3.1-8b-instant",
+            temperature=0.3 # Lower temperature for more deterministic feedback
+        )
+        feedback_markdown = chat_completion.choices[0].message.content
+        
+        # Convert the AI's Markdown response to HTML
+        feedback_html = markdown.markdown(feedback_markdown, extensions=['fenced_code'])
+        
+        return jsonify({"feedback_html": feedback_html})
+
+    except Exception as e:
+        print(f"Error during code evaluation: {e}")
+        return jsonify({"error": "The AI evaluator is currently unavailable. Please try again later."}), 500
+
+# ADD THIS NEW ROUTE AT THE END OF YOUR APP.PY
+@app.route('/quiz_complete')
+def quiz_complete():
+    # Clear session data related to the programming quiz
+    session.pop('programming_questions', None)
+    session.pop('programming_topics', None)
+    session.pop('difficulty', None)
+    return render_template('quiz_complete.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)

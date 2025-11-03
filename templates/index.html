@@ -1,302 +1,153 @@
-<!-- templates/index.html -->
+<!-- templates/index.html (FINAL DYNAMIC VERSION) -->
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create a New Quiz</title>
+    <title>Create a New Test</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
     <style>
-        * {
-            font-family: 'Roboto', sans-serif;
-        }
-
-        body {
-            background-color: #0e0e0e;
-            color: #fff;
-            margin: 0;
-            padding: 0;
-        }
-
-        .page-wrapper {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            height: 100vh;
-        }
-
-        /* Left side hero section */
-        .hero-section {
-            background: linear-gradient(145deg, #111 20%, #1a1a1a 80%);
-            border-right: 3px solid #ff8800;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 4rem;
-        }
-
-        .hero-title {
-            font-size: 2.8rem;
-            font-weight: 700;
-            line-height: 1.2;
-            color: #fff;
-            margin-bottom: 1rem;
-        }
-
-        .hero-title span {
-            color: #ff8800;
-        }
-
-        .hero-subtitle {
-            color: #ccc;
-            font-size: 1.1rem;
-            max-width: 80%;
-        }
-
-        /* Right side form section */
-        .form-section {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #0e0e0e;
-            padding: 3rem;
-        }
-
-        .form-card {
-            width: 100%;
-            max-width: 550px;
-            background: #fff;
-            color: #111;
-            padding: 3rem;
-            border: 3px solid #111;
-            box-shadow: 6px 6px 0px #ff8800;
-            border-radius: 0;
-        }
-
-        .form-card h1 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            margin-bottom: 1.5rem;
-            color: #111;
-        }
-
-        label {
-            font-weight: 500;
-            text-transform: uppercase;
-            font-size: 0.9rem;
-            color: #111;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 0.8rem;
-            border: 2px solid #111;
-            background: #f8f8f8;
-            color: #111;
-            font-weight: 500;
-            border-radius: 0;
-            transition: 0.2s ease;
-        }
-
-        input:focus, select:focus {
-            border-color: #ff8800;
-            outline: none;
-        }
-
-        .subject-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 0.8rem;
-        }
-
-        .subject-label {
-            display: flex;
-            align-items: center;
-            border: 2px solid #111;
-            background: #f5f5f5;
-            padding: 0.6rem 0.8rem;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s ease-in-out;
-        }
-
-        .subject-label:hover {
-            background: #ff8800;
-            color: #fff;
-            border-color: #ff8800;
-        }
-
-        .subject-label input {
-            margin-right: 0.6rem;
-            accent-color: #ff8800;
-        }
-
-        .toggle-switch {
-            position: relative;
-            width: 50px;
-            height: 26px;
-        }
-
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            background-color: #ccc;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            transition: 0.4s;
-            border: 2px solid #111;
-        }
-
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 2px;
-            background-color: #111;
-            transition: 0.4s;
-        }
-
-        input:checked + .toggle-slider {
-            background-color: #ff8800;
-        }
-
-        input:checked + .toggle-slider:before {
-            transform: translateX(24px);
-            background: #fff;
-        }
-
-        .btn {
-            display: block;
-            width: 100%;
-            background: #111;
-            color: #fff;
-            font-weight: 600;
-            padding: 0.9rem;
-            border: 2px solid #111;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-            margin-top: 1rem;
-        }
-
-        .btn:hover {
-            background: #ff8800;
-            color: #111;
-            transform: translate(-3px, -3px);
-            box-shadow: 6px 6px 0px #111;
-        }
-
-        /* Top-right status */
-        .status-bar {
-            position: absolute;
-            top: 1.5rem;
-            right: 2rem;
-            font-size: 0.9rem;
-            color: #ccc;
-        }
-
-        .status-bar a {
-            color: #ff8800;
-            font-weight: 500;
-        }
-
-        @media (max-width: 900px) {
-            .page-wrapper {
-                grid-template-columns: 1fr;
-            }
-            .hero-section {
-                display: none;
-            }
-            .form-section {
-                padding: 2rem;
-            }
-        }
+        * { font-family: 'Roboto', sans-serif; }
+        body { background-color: #0e0e0e; color: #fff; margin: 0; padding: 0; }
+        .page-wrapper { display: grid; grid-template-columns: 1fr 1fr; height: 100vh; }
+        .hero-section { background: linear-gradient(145deg, #111 20%, #1a1a1a 80%); border-right: 3px solid #ff8800; display: flex; flex-direction: column; justify-content: center; padding: 4rem; }
+        .hero-title { font-size: 2.8rem; font-weight: 700; line-height: 1.2; color: #fff; margin-bottom: 1rem; }
+        .hero-title span { color: #ff8800; }
+        .hero-subtitle { color: #ccc; font-size: 1.1rem; max-width: 80%; }
+        .form-section { display: flex; align-items: center; justify-content: center; background: #0e0e0e; padding: 3rem; }
+        .form-card { width: 100%; max-width: 550px; background: #fff; color: #111; padding: 3rem; border: 3px solid #111; box-shadow: 6px 6px 0px #ff8800; border-radius: 0; }
+        .form-card h1 { font-size: 1.8rem; font-weight: 700; text-transform: uppercase; margin-bottom: 1.5rem; color: #111; }
+        label, .label-text { font-weight: 500; text-transform: uppercase; font-size: 0.9rem; color: #111; }
+        input, select { width: 100%; padding: 0.8rem; border: 2px solid #111; background: #f8f8f8; color: #111; font-weight: 500; border-radius: 0; transition: 0.2s ease; }
+        input:focus, select:focus { border-color: #ff8800; outline: none; }
+        .subject-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.8rem; }
+        .subject-label { display: flex; align-items: center; border: 2px solid #111; background: #f5f5f5; padding: 0.6rem 0.8rem; cursor: pointer; font-weight: 500; transition: all 0.2s ease-in-out; }
+        .subject-label:hover { background: #ff8800; color: #fff; border-color: #ff8800; }
+        .subject-label input { margin-right: 0.6rem; accent-color: #ff8800; }
+        .btn { display: block; width: 100%; background: #111; color: #fff; font-weight: 600; padding: 0.9rem; border: 2px solid #111; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; margin-top: 1rem; }
+        .btn:hover { background: #ff8800; color: #111; transform: translate(-3px, -3px); box-shadow: 6px 6px 0px #111; }
+        .status-bar { position: absolute; top: 1.5rem; right: 2rem; font-size: 0.9rem; color: #ccc; }
+        .status-bar a { color: #ff8800; font-weight: 500; }
+        .hidden-section { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; }
+        .visible-section { max-height: 100px; /* Adjust as needed */ }
+        .hidden { display: none; }
+        @media (max-width: 900px) { .page-wrapper { grid-template-columns: 1fr; } .hero-section { display: none; } .form-section { padding: 2rem; } }
     </style>
 </head>
-
 <body>
     <div class="page-wrapper">
-
-        <!-- Left side -->
         <section class="hero-section">
-            <h1 class="hero-title">Start Your <span>AI-Powered</span> Test</h1>
-            <p class="hero-subtitle">
-                Choose your subjects, set the difficulty, and begin your test with real-time AI-generated questions. 
-                Built for smart learners who value precision and style.
-            </p>
+            <h1 class="hero-title">Choose Your <span>Challenge</span></h1>
+            <p class="hero-subtitle">Select between Aptitude MCQs or sharpen your coding skills with AI-evaluated DSA and SQL problems.</p>
         </section>
-
-        <!-- Right side -->
         <section class="form-section">
             <div class="status-bar">
-    {% if g.user %}
-        Logged in as <span class="font-medium" style="color: #ff8800;">{{ g.user.email }}</span> |
-        <a href="{{ url_for('user_history') }}">View History</a> |
-        <a href="{{ url_for('logout') }}">Logout</a>
-    {% elif g.guest_id %}
-        Guest Mode |
-        <a href="{{ url_for('logout') }}">End Session</a>
-    {% endif %}
-</div>
-
+                {% if g.user %}
+                    Logged in as <span class="font-medium" style="color: #ff8800;">{{ g.user.email }}</span> |
+                    <a href="{{ url_for('user_history') }}">View History</a> |
+                    <a href="{{ url_for('logout') }}">Logout</a>
+                {% elif g.guest_id %}
+                    Guest Mode |
+                    <a href="{{ url_for('logout') }}">End Session</a>
+                {% endif %}
+            </div>
             <div class="form-card">
-                <h1>Create a New Quiz</h1>
                 <form method="POST" class="space-y-6">
-
-                    <!-- Subjects -->
                     <div>
-                        <label>Subjects</label>
-                        <div class="subject-grid mt-2">
-                            {% for subject in subjects %}
-                            <label class="subject-label">
-                                <input type="checkbox" name="subjects" value="{{ subject }}" checked>
-                                {{ subject }}
-                            </label>
-                            {% endfor %}
+                        <label for="quiz-type-select">Test Type</label>
+                        <select id="quiz-type-select" name="quiz_type" class="mt-2">
+                            <option value="aptitude">Aptitude Test</option>
+                            <option value="programming">Programming Test</option>
+                        </select>
+                    </div>
+
+                    <div id="aptitude-settings">
+                        <div class="space-y-6">
+                            <div>
+                                <label class="label-text">Aptitude Subjects</label>
+                                <div class="subject-grid mt-2">
+                                    {% for subject in subjects %}
+                                    <label class="subject-label"><input type="checkbox" name="subjects" value="{{ subject }}" checked>{{ subject }}</label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div>
+                                <label for="num_questions">Number of Aptitude Questions</label>
+                                <input type="number" id="num_questions" name="num_questions" min="1" max="30" value="5" class="mt-2">
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Difficulty -->
+                    <div id="programming-settings" class="hidden">
+                        <div class="space-y-6">
+                           <div>
+                                <label class="label-text">Programming Topics</label>
+                                <div class="space-y-4 mt-2">
+                                    <label class="subject-label"><input type="checkbox" id="dsa-check" name="programming_topics" value="DSA"> DSA</label>
+                                    <div id="dsa-num-container" class="hidden-section ml-4">
+                                        <label for="num-dsa">Number of DSA Questions</label>
+                                        <input type="number" id="num-dsa" name="num_dsa_questions" min="0" max="5" value="1">
+                                    </div>
+                                    <label class="subject-label"><input type="checkbox" id="sql-check" name="programming_topics" value="SQL"> SQL</label>
+                                    <div id="sql-num-container" class="hidden-section ml-4">
+                                        <label for="num-sql">Number of SQL Questions</label>
+                                        <input type="number" id="num-sql" name="num_sql_questions" min="0" max="5" value="1">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div>
-                        <label>Difficulty</label>
-                        <select name="difficulty" class="mt-2">
+                        <label for="difficulty">Difficulty</label>
+                        <select id="difficulty" name="difficulty" class="mt-2">
                             <option value="Easy">Easy</option>
                             <option value="Medium" selected>Medium</option>
                             <option value="Hard">Hard</option>
                         </select>
                     </div>
-
-                    <!-- Number of Questions -->
-                    <div>
-                        <label>Number of Questions</label>
-                        <input type="number" name="num_questions" min="1" max="30" value="5" required class="mt-2">
-                    </div>
-
-                    <!-- Timed Test -->
-                    <div class="flex items-center justify-between mt-4">
-                        <span class="font-medium uppercase">Timed Test</span>
-                        <label class="toggle-switch">
-                            <input type="checkbox" name="timed_test">
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-
-                    <button type="submit" class="btn">Start Test</button>
+                    <button type="submit" class="btn">Generate Test</button>
                 </form>
             </div>
         </section>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const quizTypeSelect = document.getElementById('quiz-type-select');
+            const aptitudeSettings = document.getElementById('aptitude-settings');
+            const programmingSettings = document.getElementById('programming-settings');
+            const dsaCheck = document.getElementById('dsa-check');
+            const sqlCheck = document.getElementById('sql-check');
+            const dsaNumContainer = document.getElementById('dsa-num-container');
+            const sqlNumContainer = document.getElementById('sql-num-container');
+
+            function toggleMainSections() {
+                if (quizTypeSelect.value === 'aptitude') {
+                    aptitudeSettings.classList.remove('hidden');
+                    programmingSettings.classList.add('hidden');
+                } else {
+                    aptitudeSettings.classList.add('hidden');
+                    programmingSettings.classList.remove('hidden');
+                }
+            }
+
+            function toggleSubSection(checkbox, container) {
+                if (checkbox.checked) {
+                    container.classList.add('visible-section');
+                } else {
+                    container.classList.remove('visible-section');
+                }
+            }
+
+            quizTypeSelect.addEventListener('change', toggleMainSections);
+            dsaCheck.addEventListener('change', () => toggleSubSection(dsaCheck, dsaNumContainer));
+            sqlCheck.addEventListener('change', () => toggleSubSection(sqlCheck, sqlNumContainer));
+
+            toggleMainSections();
+        });
+    </script>
 </body>
 </html>

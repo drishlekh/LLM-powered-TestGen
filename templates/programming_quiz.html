@@ -1,0 +1,308 @@
+<!-- templates/programming_quiz.html (Scroll-Fixed Evaluation Panel - FINAL FIXED) -->
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Programming Test</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/material-darker.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/clike/clike.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/sql/sql.min.js"></script>
+
+  <style>
+    body {
+      background-color: #0e0e0e;
+      color: #fff;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    .problem-container {
+      background-color: #1a1a1a;
+      border-right: 2px solid #333;
+    }
+
+    .editor-container {
+      background-color: #111;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .CodeMirror {
+      font-size: 16px;
+      height: 100%;
+      border: 1px solid #333;
+    }
+
+    .tab-button {
+      background-color: #333;
+      color: #aaa;
+      transition: all 0.2s ease;
+    }
+    .tab-button.active {
+      background-color: #ff8800;
+      color: #111;
+      font-weight: bold;
+    }
+
+    .btn {
+      background: #111;
+      color: #fff;
+      font-weight: 600;
+      padding: 0.8rem 1.5rem;
+      border: 2px solid #111;
+      text-transform: uppercase;
+      transition: all 0.3s ease;
+    }
+    .btn:hover {
+      background: #ff8800;
+      color: #111;
+    }
+    .btn-action {
+      background: #ff8800;
+      color: #111;
+    }
+    .btn-action:hover {
+      background: #ffa533;
+    }
+    .btn-action:disabled {
+      background: #555;
+      color: #999;
+      cursor: not-allowed;
+    }
+
+    .prose {
+      color: #d1d5db;
+      max-width: none;
+    }
+    .prose h3 {
+      color: white;
+      border-bottom: 1px solid #4b5563;
+      padding-bottom: 0.3em;
+    }
+    .prose pre {
+      background-color: #111;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    /* Fixed layout */
+    #editor-panel {
+      flex: 1;
+      overflow-y: auto;
+      min-height: 200px;
+    }
+
+    #feedback-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border-top: 1px solid #333;
+    }
+
+    #evaluation-output {
+      flex-grow: 1;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #555 #111;
+      padding: 1rem;
+    }
+
+    #editor-panel::-webkit-scrollbar,
+    #evaluation-output::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    #editor-panel::-webkit-scrollbar-thumb,
+    #evaluation-output::-webkit-scrollbar-thumb {
+      background-color: #555;
+      border-radius: 8px;
+    }
+
+    #problem-content {
+      overflow-y: auto;
+    }
+
+    .feedback-action {
+      background: #000;
+      padding: 0.75rem;
+      display: flex;
+      justify-content: flex-end;
+      border-top: 1px solid #333;
+      flex-shrink: 0;
+      position: sticky;
+      bottom: 0;
+    }
+  </style>
+
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="overflow-hidden">
+  <div class="h-screen flex flex-col">
+    <!-- Header -->
+    <div class="flex-shrink-0 bg-black p-2 flex justify-between items-center">
+      <div id="tabs-container" class="flex flex-wrap gap-2">
+        {% for question in questions %}
+        <button class="tab-button px-4 py-2 rounded-md" onclick="switchQuestion({{ loop.index0 }})">
+          {{ question.topic }} #{{ loop.index }}
+        </button>
+        {% endfor %}
+      </div>
+      <div id="language-selector-container" class="mr-4"></div>
+    </div>
+
+    <!-- Main Split Panels -->
+    <div class="flex-grow grid grid-cols-1 md:grid-cols-2 overflow-hidden">
+      <!-- Left Panel -->
+      <div class="problem-container p-6 flex flex-col">
+        <div id="problem-content" class="flex-grow overflow-y-auto pr-2"></div>
+        <div class="mt-4 flex-shrink-0">
+          <a href="{{ url_for('quiz_complete') }}" id="left-finish-btn"
+            class="btn btn-action hidden rounded-md shadow-md">Finish Quiz</a>
+        </div>
+      </div>
+
+      <!-- Right Panel -->
+      <div class="editor-container">
+        <div id="editor-panel">
+          <textarea id="code-editor"></textarea>
+        </div>
+
+        <div id="feedback-panel">
+          <div id="evaluation-output" class="prose">
+            <h3 class="text-xl font-bold text-gray-400">Evaluation Feedback</h3>
+            <p class="text-gray-500 mt-2">Submit your code for AI-powered feedback.</p>
+          </div>
+          <div class="feedback-action">
+            <button id="evaluate-btn" class="btn btn-action rounded-md shadow-md">Evaluate Code</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const questions = {{ questions_json | safe }};
+    let currentQuestionIndex = 0;
+    let editor;
+
+    const evaluateBtn = document.getElementById('evaluate-btn');
+    const finishBtn = document.getElementById('left-finish-btn');
+    const outputPanel = document.getElementById('evaluation-output');
+    const problemContent = document.getElementById('problem-content');
+
+    function switchQuestion(index) {
+      currentQuestionIndex = index;
+      displayQuestion(index);
+      editor.setValue('');
+      outputPanel.innerHTML = `
+        <h3 class="text-xl font-bold text-gray-400">Evaluation Feedback</h3>
+        <p class="text-gray-500 mt-2">Submit your code for AI-powered feedback.</p>`;
+      evaluateBtn.disabled = false;
+      evaluateBtn.innerText = 'Evaluate Code';
+      if (index === questions.length - 1) finishBtn.classList.remove('hidden');
+      else finishBtn.classList.add('hidden');
+    }
+
+    evaluateBtn.addEventListener('click', () => {
+      const userCode = editor.getValue();
+      const currentQuestion = questions[currentQuestionIndex];
+      const languageSelect = document.getElementById('language-select');
+      const language = languageSelect ? languageSelect.options[languageSelect.selectedIndex].text : 'Python';
+
+      evaluateBtn.disabled = true;
+      evaluateBtn.innerText = 'Evaluating...';
+      outputPanel.innerHTML = `
+        <h3 class="text-xl font-bold text-yellow-400">Evaluating...</h3>
+        <p class="text-yellow-300 mt-2">Please wait while our AI reviews your solution...</p>`;
+
+      fetch('/evaluate_code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: currentQuestion, user_code: userCode, language: language })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.feedback_html) outputPanel.innerHTML = data.feedback_html;
+          else {
+            outputPanel.innerHTML = `<p class="text-red-500">${data.error || 'An unknown error occurred.'}</p>`;
+          }
+        })
+        .catch(error => {
+          console.error('Evaluation error:', error);
+          outputPanel.innerHTML = '<p class="text-red-500">Failed to get a response from the server.</p>';
+        })
+        .finally(() => {
+          evaluateBtn.disabled = false;
+          evaluateBtn.innerText = 'Evaluate Code';
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeEditor();
+      switchQuestion(0);
+    });
+
+    function displayQuestion(index) {
+      const question = questions[index];
+      const container = problemContent;
+      let examplesHtml = question.examples.map(ex => `
+        <div class="bg-gray-800 p-3 my-2 rounded-md">
+          <p class="font-semibold">Example:</p>
+          <p><strong>Input:</strong> ${ex.input}</p>
+          <p><strong>Output:</strong> ${ex.output}</p>
+        </div>`).join('');
+
+      container.innerHTML = `
+        <h1 class="text-2xl font-bold text-orange-400 mb-4">${question.title}</h1>
+        <p class="text-gray-300 mb-4">${question.problem_statement}</p>
+        <h2 class="text-xl font-semibold mt-6 mb-2">Examples</h2>
+        ${examplesHtml}
+        <h2 class="text-xl font-semibold mt-6 mb-2">Constraints</h2>
+        <ul class="list-disc list-inside text-gray-400">
+          ${question.constraints.map(c => `<li>${c}</li>`).join('')}
+        </ul>
+      `;
+
+      updateLanguageSelector(question.topic);
+      document.querySelectorAll(".tab-button").forEach((t, n) => {
+        t.classList.toggle("active", n === index);
+      });
+    }
+
+    function initializeEditor() {
+      const e = document.getElementById("code-editor");
+      editor = CodeMirror.fromTextArea(e, {
+        lineNumbers: true,
+        theme: "material-darker",
+        mode: "python"
+      });
+    }
+
+    function updateLanguageSelector(e) {
+      const t = document.getElementById("language-selector-container");
+      let n = "";
+      if (e === "DSA") {
+        n = '<select id="language-select" class="bg-gray-700 text-white rounded p-2"><option value="python">Python</option><option value="text/x-c++src">C++</option><option value="text/x-java">Java</option></select>';
+      } else if (e === "SQL") {
+        n = '<select id="language-select" class="bg-gray-700 text-white rounded p-2"><option value="text/x-sql">SQL</option></select>';
+      }
+      t.innerHTML = n;
+
+      const o = document.getElementById("language-select");
+      if (o) {
+        o.addEventListener("change", e => editor.setOption("mode", e.target.value));
+        editor.setOption("mode", o.value);
+      }
+    }
+  </script>
+</body>
+</html>

@@ -29,18 +29,32 @@ llm_with_tools = llm.bind_tools(tools)
 
 def planner_node(state: AgentState):
     prompt = f"""
-You are an expert academic advisor. Your first job is to analyze a student's test data and decide which topics require external resources. You have one tool available: a web search tool.
+You are an expert academic advisor. Your first job is to analyze a student's test data and generate SPECIFIC web search queries to find resources for the student's weak topics. You have one tool available: a web search tool.
 
 **Student's Test Data:**
 {state['report_data']}
 
-Analyze the 'topic_breakdown'. Identify all topics where 'incorrect_count' is greater than 0. These are the student's weak topics.
+**Your Task:**
+1.  Analyze the 'topic_breakdown' in the data.
+2.  Identify every topic where 'incorrect_count' is greater than 0.
+3.  For EACH weak topic you identify, you MUST generate two tool calls to your web search tool (`tavily_search`) by filling in the following templates.
 
-For EACH weak topic you identify, you MUST use your web search tool (`tavily_search`):
-1.  **To find a video tutorial:** Compulsorily frame your search query like this: `site:youtube.com "Time & Work" tutorial for placements.`
-2.  **To find practice material:** Frame your search query like this: `free "Time & Work" practice questions GeeksforGeeks OR IndiaBIX`
+**CRITICAL INSTRUCTION:** You MUST replace `[TOPIC_NAME]` in the templates below with the actual weak topic you have identified (e.g., "Percentages", "Syllogisms", "Blood Relations").
 
-After deciding on the tool calls, also write a preliminary analysis of the student's performance.
+**Templates to use for your tool calls:**
+
+*   **For Video Tutorials:**
+    `site:youtube.com "[TOPIC_NAME]" tutorial for placements`
+
+*   **For Practice Material:**
+    `free "[TOPIC_NAME]" practice questions GeeksforGeeks OR IndiaBIX`
+
+**Example:**
+If a student is weak in the "Profit & Loss" topic, you must generate these two exact search queries for your tool calls:
+1. `site:youtube.com "Profit & Loss" tutorial for placements`
+2. `free "Profit & Loss" practice questions GeeksforGeeks OR IndiaBIX`
+
+After deciding on all the necessary tool calls for every weak topic, also write a preliminary analysis of the student's performance.
 """
 
 
