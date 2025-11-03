@@ -1,6 +1,6 @@
 pip>=25.3
 setuptools>=75.0
-
+anyio>=3.7,<5
 aiohttp==3.12.15
 aiosignal==1.4.0
 annotated-types==0.7.0
@@ -20,11 +20,11 @@ google-api-core==2.25.1
 google-api-python-client==2.177.0
 google-auth==2.40.3
 google-auth-httplib2==0.2.0
-google-cloud==0.34.0
+
 googleapis-common-protos==1.70.0
 greenlet==3.2.3
 groq==0.29.0
-grpc-stubs==1.53.0.6
+
 grpcio==1.74.0
 h11==0.16.0
 httplib2==0.22.0
@@ -56,7 +56,7 @@ ormsgpack==1.10.0
 packaging==25.0
 propcache==0.3.2
 proto-plus==1.26.1
-protobuf==3.20.3
+
 pyasn1==0.6.1
 pyasn1_modules==0.4.2
 pydantic==2.11.7
@@ -87,3 +87,6 @@ xxhash==3.5.0
 yarl==1.20.1
 youtube-search-python==1.6.6
 zstandard==0.23.0
+protobuf>=4.25
+google-cloud-firestore>=2.19
+
