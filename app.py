@@ -16,9 +16,26 @@ from firebase_admin import credentials, auth, firestore
 
 load_dotenv()
 
-cred = credentials.Certificate("firebase_admin_sdk.json")
-firebase_admin.initialize_app(cred)
-db = firestore.client() # This gives us a Firestore client to interact with the database later
+# cred = credentials.Certificate("firebase_admin_sdk.json")
+# firebase_admin.initialize_app(cred)
+# db = firestore.client() # This gives us a Firestore client to interact with the database later
+firebase_creds_json = os.environ.get('FIREBASE_CREDS')
+
+if firebase_creds_json:
+    # If it exists, load credentials from the environment variable
+    print("Initializing Firebase from environment variable...")
+    firebase_creds = json.loads(firebase_creds_json)
+    cred = credentials.Certificate(firebase_creds)
+else:
+    # Otherwise (if running locally), load from the JSON file
+    print("Initializing Firebase from local JSON file...")
+    cred = credentials.Certificate("firebase_admin_sdk.json")
+
+# Initialize the app (this part stays the same)
+if not firebase_admin._apps:
+    firebase_admin.initialize_app(cred)
+    
+db = firestore.client()
 
 
 app = Flask(__name__)
