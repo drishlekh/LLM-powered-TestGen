@@ -14,6 +14,7 @@ colorama==0.4.6
 dataclasses-json==0.6.7
 distro==1.9.0
 fastapi==0.104.1
+firebase-admin==6.5.0
 Flask==3.1.1
 frozenlist==1.7.0
 google-api-core==2.25.1
@@ -94,4 +95,5 @@ xxhash==3.5.0
 yarl==1.20.1
 youtube-search-python==1.6.6
 zstandard==0.23.0
+
 
