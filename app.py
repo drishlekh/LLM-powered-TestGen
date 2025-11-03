@@ -759,9 +759,12 @@ def quiz_complete():
     return render_template('quiz_complete.html')
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+    import os
     port = int(os.environ.get("PORT", 10000))
+    print(f"Running on 0.0.0.0:{port}")
     app.run(host="0.0.0.0", port=port, debug=True)
+
 
 
 
