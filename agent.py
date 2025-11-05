@@ -96,8 +96,10 @@ def summarizer_node(state: AgentState):
     """This node takes all information and generates the final, professional report."""
     
     # --- MAJOR CHANGE: We now provide the strengths and weaknesses directly ---
+    # In agent.py, inside the summarizer_node function:
+
     prompt = f"""
-You are a helpful career coach creating a final, polished performance report. Your task is to synthesize the provided information into a Markdown report.
+You are a career coach AI responsible for creating the final, polished report. Your only task is to synthesize the information provided below and the tool outputs from the conversation history into a perfectly formatted Markdown document.
 
 **Student's Strengths:**
 {state['strengths']}
@@ -105,32 +107,48 @@ You are a helpful career coach creating a final, polished performance report. Yo
 **Areas for Improvement (Weaknesses):**
 {state['weaknesses']}
 
-**CRITICAL INSTRUCTION:** The conversation history contains `ToolMessage` results from a web search. You must extract the `url` and `content` directly from the tool messages to create the resource links.
+**Conversation History with Tool Outputs:**
+{state['messages']}
 
+---
+**CRITICAL INSTRUCTIONS - YOU MUST FOLLOW THESE RULES:**
+
+1.  **USE REAL DATA ONLY:** The conversation history contains `ToolMessage` outputs. Each output is a list containing a dictionary like `{{'url': 'THE_REAL_URL', 'content': 'THE_REAL_LINK_TEXT'}}`. You MUST find the correct `ToolMessage` for each weak topic and use the `url` and `content` from that dictionary.
+
+2.  **DO NOT HALLUCINATE:** Do NOT invent, guess, or create your own URLs or link text. Do NOT repeat the search query. You MUST extract the `url` and `content` directly from the `ToolMessage` in the history.
+
+3.  **CORRECT MARKDOWN HYPERLINKS:** You MUST format every link using the proper Markdown syntax: `[Link Text](URL)`.
+    *   **CORRECT:** `[GeeksforGeeks Practice Questions](https://www.geeksforgeeks.org/....)`
+    *   **INCORRECT:** `GeeksforGeeks Practice Questions (https://www.geeksforgeeks.org/....)`
+    *   **INCORRECT:** `[Free "Topic" practice questions GeeksforGeeks OR IndiaBIX]`
+
+---
 **Your Task:**
-Combine all information into a single, comprehensive report in Markdown. Follow this structure EXACTLY:
+Generate a report with the following structure, applying all the critical instructions above for every resource link.
 
 ## Overall Summary
-Write a brief, encouraging paragraph about the student's performance.
+(Write a brief, encouraging paragraph here)
 
 ## Detailed Analysis
 ### Your Strengths
-*   Use the **Student's Strengths** list provided above to list all strong topics as bullet points.
+*   (List the student's strengths from the list provided)
 
 ### Areas for Improvement
-*   Use the **Areas for Improvement (Weaknesses)** list provided above to list all weak topics as bullet points.
+*   (List the student's weaknesses from the list provided)
 
 ## Personalized Recommendations
-Write a short paragraph with actionable advice based on the analysis.
+(Write a short paragraph with actionable advice here)
 
 ## Recommended Resources
-For each topic in the **Areas for Improvement (Weaknesses)** list, create a sub-heading. Then, find the corresponding `ToolMessage` in the history and construct the Markdown links.
+(For each weak topic, create a sub-heading. Find the corresponding tool outputs in the history and create the two required resource links using the correct hyperlink format.)
 
 ### Topic: [Name of Weak Topic 1]
-*   **Video Tutorial:** [Link Text from Tool Result](URL from Tool Result)
-*   **Practice Material:** [Link Text from Tool Result](URL from Tool Result)
+*   **Video Tutorial:** [Use the 'content' from the YouTube search result as link text](Use the 'url' from the YouTube search result)
+*   **Practice Material:** [Use the 'content' from the practice material search result as link text](Use the 'url' from the practice material search result)
 
-Generate only the final report text in Markdown. Do not add any extra text or commentary.
+(Repeat the above structure for every weak topic)
+
+Generate ONLY the final report text in Markdown.
 """
     response = llm.invoke(state["messages"] + [("user", prompt)])
     return {"report_text": response.content}
