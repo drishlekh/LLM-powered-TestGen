@@ -99,56 +99,47 @@ def summarizer_node(state: AgentState):
     # In agent.py, inside the summarizer_node function:
 
     prompt = f"""
-You are a career coach AI responsible for creating the final, polished report. Your only task is to synthesize the information provided below and the tool outputs from the conversation history into a perfectly formatted Markdown document.
-
-**Student's Strengths:**
-{state['strengths']}
-
-**Areas for Improvement (Weaknesses):**
-{state['weaknesses']}
-
-**Conversation History with Tool Outputs:**
-{state['messages']}
+You are a report-generating AI. Your only job is to synthesize the provided conversation history and data into a final, perfectly formatted Markdown document.
 
 ---
-**CRITICAL INSTRUCTIONS - YOU MUST FOLLOW THESE RULES:**
+**CRITICAL FORMATTING INSTRUCTION: THIS IS THE MOST IMPORTANT RULE.**
 
-1.  **USE REAL DATA ONLY:** The conversation history contains `ToolMessage` outputs. Each output is a list containing a dictionary like `{{'url': 'THE_REAL_URL', 'content': 'THE_REAL_LINK_TEXT'}}`. You MUST find the correct `ToolMessage` for each weak topic and use the `url` and `content` from that dictionary.
+You MUST create clickable Markdown hyperlinks for all resources.
+The tool's output for a search result looks like this: `{{'url': 'https://www.the-real-url.com/page', 'content': 'The Title of the Page'}}`.
 
-2.  **DO NOT HALLUCINATE:** Do NOT invent, guess, or create your own URLs or link text. Do NOT repeat the search query. You MUST extract the `url` and `content` directly from the `ToolMessage` in the history.
+You MUST convert this exact data structure into the following Markdown format: `[The Title of the Page](https://www.the-real-url.com/page)`
 
-3.  **CORRECT MARKDOWN HYPERLINKS:** You MUST format every link using the proper Markdown syntax: `[Link Text](URL)`.
-    *   **CORRECT:** `[GeeksforGeeks Practice Questions](https://www.geeksforgeeks.org/....)`
-    *   **INCORRECT:** `GeeksforGeeks Practice Questions (https://www.geeksforgeeks.org/....)`
-    *   **INCORRECT:** `[Free "Topic" practice questions GeeksforGeeks OR IndiaBIX]`
+**DO NOT** write the URL in plain text after the title.
+**DO NOT** put parentheses `()` around the URL without using the square brackets `[]` for the text.
+You must follow the `[Text](URL)` syntax precisely and without deviation.
 
 ---
 **Your Task:**
-Generate a report with the following structure, applying all the critical instructions above for every resource link.
+Generate a report with the following structure, using the data from the conversation history and applying the critical formatting instruction above for all links.
 
 ## Overall Summary
 (Write a brief, encouraging paragraph here)
 
 ## Detailed Analysis
 ### Your Strengths
-*   (List the student's strengths from the list provided)
+*   (List the student's strengths from `{state['strengths']}`)
 
 ### Areas for Improvement
-*   (List the student's weaknesses from the list provided)
+*   (List the student's weaknesses from `{state['weaknesses']}`)
 
 ## Personalized Recommendations
 (Write a short paragraph with actionable advice here)
 
 ## Recommended Resources
-(For each weak topic, create a sub-heading. Find the corresponding tool outputs in the history and create the two required resource links using the correct hyperlink format.)
+(For each weak topic, create a sub-heading. Find the corresponding tool outputs in the conversation history and create the two required resource links using the correct hyperlink format as specified in the critical instruction.)
 
 ### Topic: [Name of Weak Topic 1]
-*   **Video Tutorial:** [Use the 'content' from the YouTube search result as link text](Use the 'url' from the YouTube search result)
-*   **Practice Material:** [Use the 'content' from the practice material search result as link text](Use the 'url' from the practice material search result)
+*   **Video Tutorial:** [Use the 'content' from the tool result as the link text](Use the 'url' from the tool result as the link)
+*   **Practice Material:** [Use the 'content' from the tool result as the link text](Use the 'url' from the tool result as the link)
 
-(Repeat the above structure for every weak topic)
+(Repeat for all other weak topics)
 
-Generate ONLY the final report text in Markdown.
+Generate ONLY the final report text in Markdown. Do not add any commentary.
 """
     response = llm.invoke(state["messages"] + [("user", prompt)])
     return {"report_text": response.content}
