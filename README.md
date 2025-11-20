@@ -2,8 +2,7 @@
 
 An intelligent, full-stack web application designed to generate dynamic aptitude (MCQ) and programming (DSA/SQL) tests with real-time, AI-powered evaluation and personalized feedback. This platform moves beyond static question banks to provide a limitless, adaptive practice environment for students and a comprehensive analytics dashboard for teachers.
 
-![Project Demo GIF](https://your-gif-url-here.com/demo.gif)
-*Note: It is highly recommended to create a short GIF showcasing your app's main features (quiz selection, code editor, AI feedback) and replace the URL above.*
+
 
 ---
 
@@ -133,16 +132,9 @@ This application is configured for easy deployment on Render.
 -   **Publish a Research Paper:** Conduct a formal comparative analysis of different LLMs (e.g., Llama, GPT-4, Gemini) to evaluate their effectiveness in generating high-quality test questions and pedagogical feedback, with the goal of publishing the findings.
 -   **AI-Powered Mock Interview:** Add a feature where a conversational AI acts as an interviewer, asking follow-up questions about the user's submitted code.
 
----
 
-## 📄 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
 
-## 📬 Contact
 
-Your Name - [your.email@example.com](mailto:your.email@example.com)
-
-Project Link: [https://github.com/your-username/LLM-powered-testgen](https://github.com/your-username/LLM-powered-testgen)
+Project Link: [[https://github.com/your-username/LLM-powered-testgen](https://llm-powered-testgen.onrender.com/)]([https://github.com/your-username/LLM-powered-testgen](https://llm-powered-testgen.onrender.com/))
