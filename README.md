@@ -2,23 +2,6 @@
 
 An intelligent, full-stack web application designed to generate dynamic aptitude (MCQ) and programming (DSA/SQL) tests with real-time, AI-powered evaluation and personalized feedback. This platform moves beyond static question banks to provide a limitless, adaptive practice environment for students and a comprehensive analytics dashboard for teachers.
 
-
-
----
-
-## 📋 Table of Contents
-
-- [About The Project](#about-the-project)
-- [✨ Key Features](#-key-features)
-- [🛠️ Tech Stack](#️-tech-stack)
-- [⚙️ Getting Started](#️-getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Local Setup](#local-setup)
-- [🚀 Deployment on Render](#-deployment-on-render)
-- [🔮 Future Scope](#-future-scope)
-- [📄 License](#-license)
-- [📬 Contact](#-contact)
-
 ---
 
 ## 🌟 About The Project
@@ -53,7 +36,7 @@ This project demonstrates a practical, end-to-end implementation of agentic AI s
 | **Backend**       | Python, Flask                                                                         |
 | **AI / LLM**      | Groq API (Llama 3.1), LangChain, LangGraph, Tavily Search                             |
 | **Database & Auth** | Google Firebase (Authentication & Cloud Firestore)                                    |
-| **Deployment**    | Render, Gunicorn                                                                      |
+| **Deployment**    | Render                                                                               |
 
 ---
 
