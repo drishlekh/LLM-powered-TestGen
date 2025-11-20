@@ -120,4 +120,4 @@ This application is configured for easy deployment on Render.
 ---
 
 
-Project Link: [[https://github.com/your-username/LLM-powered-testgen](https://llm-powered-testgen.onrender.com/)]([https://github.com/your-username/LLM-powered-testgen](https://llm-powered-testgen.onrender.com/))
+Project Link: [[https://github.com/your-username/LLM-powered-testgen](https://llm-powered-testgen.onrender.com/)]
